@@ -7,8 +7,17 @@ import AppRoutes from './routes/AppRoutes';
 import Footer from './components/Footer';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userProfile, setUserProfile] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('googleToken'));
+  const [userProfile, setUserProfile] = useState(() => {
+    const storedUser = localStorage.getItem('userProfile');
+    if (!storedUser) return null;
+    try {
+      return JSON.parse(storedUser);
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  });
   const { darkMode, toggleTheme } = useTheme();
 
   useEffect(() => {

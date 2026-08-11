@@ -37,7 +37,7 @@ const Detail = ({ isLoggedIn, userProfile }) => {
     }
   }, [id]);
 
-  if (status === 'loading') {
+  if (status === 'idle' || status === 'loading') {
     return (
       <Container className="mt-5 text-center py-5">
         <div className="py-5 bg-light rounded-4 shadow-sm" style={{ maxWidth: '600px', margin: '0 auto' }}>
