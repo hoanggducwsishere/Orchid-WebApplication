@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  orchid-db:
+    image: postgres:15
+    container_name: orchid-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: orchid_db
+      POSTGRES_USER: orchid_user
+      POSTGRES_PASSWORD: orchid_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - orchid_pgdata:/var/lib/postgresql/data
+
+volumes:
+  orchid_pgdata:
