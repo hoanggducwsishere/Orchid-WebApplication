@@ -18,23 +18,47 @@ Dự án môn **FER202**.
 
 ## 🏗 Hệ thống hoạt động thế nào
 
-```mermaid
-flowchart LR
-    FE["Frontend<br/>React + Vite<br/>(cổng 5173)"]
-    BE["Backend<br/>Spring Boot<br/>(cổng 8080)"]
-    DB[("PostgreSQL<br/>(cổng 5433)")]
+Hệ thống gồm **3 tầng tách rời**, mỗi tầng chạy độc lập ở một cổng riêng:
 
-    FE -->|"gọi REST API"| BE
-    BE -->|"đọc/ghi dữ liệu"| DB
+```text
+   ┌──────────────────┐         ┌──────────────────┐         ┌──────────────────┐
+   │    FRONTEND      │  gửi    │     BACKEND      │  truy   │     DATABASE     │
+   │                  │  request│                  │  vấn    │                  │
+   │  React + Vite    ├────────►│  Spring Boot     ├────────►│   PostgreSQL     │
+   │  cổng 5173       │◄────────┤  cổng 8080       │◄────────┤   cổng 5433      │
+   │                  │  JSON   │                  │  dữ liệu│                  │
+   └──────────────────┘         └──────────────────┘         └──────────────────┘
+         Giao diện                Xử lý + phân quyền              Lưu dữ liệu
 ```
 
-Hệ thống gồm **3 tầng tách rời**:
+| Tầng | Làm gì | Không làm gì |
+| :--- | :--- | :--- |
+| **Frontend** | Vẽ giao diện, nhận thao tác của người dùng | Không đụng thẳng vào database |
+| **Backend** | Kiểm tra đăng nhập, xử lý logic, quyết định ai được làm gì | Không lo giao diện |
+| **Database** | Lưu dữ liệu | Không chứa logic |
 
-1. **Frontend** chỉ lo giao diện. Nó không đụng vào database, mọi dữ liệu đều xin từ backend qua REST API.
-2. **Backend** giữ toàn bộ logic nghiệp vụ, kiểm tra đăng nhập và quyền hạn, rồi mới cho phép truy cập database.
-3. **Database** chỉ lưu dữ liệu.
+Điểm mấu chốt: **frontend không bao giờ nói chuyện trực tiếp với database.** Mọi thứ phải đi qua backend, vì đó là nơi duy nhất kiểm tra quyền. Nếu frontend nối thẳng vào database thì ai cũng sửa được dữ liệu của người khác.
 
-Sau khi đăng nhập, backend cấp cho frontend một **JWT** (thẻ ra vào). Frontend đính thẻ này vào mọi request tiếp theo. Không có thẻ thì backend trả lỗi 401.
+### Đăng nhập hoạt động ra sao
+
+Hình dung JWT như một **tấm thẻ ra vào**:
+
+```text
+   1. Đăng nhập          2. Backend phát thẻ        3. Mọi request sau
+      ──────────            ──────────────             đều phải đeo thẻ
+
+   email + mật khẩu  ──►  kiểm tra đúng/sai  ──►  cấp JWT  ──►  frontend lưu lại
+                                                                      │
+                                                                      ▼
+                                          backend kiểm thẻ  ◄──  đính vào request
+                                                  │
+                                    ┌─────────────┴─────────────┐
+                                    ▼                           ▼
+                              thẻ hợp lệ                  không có thẻ
+                              → trả dữ liệu               → lỗi 401
+```
+
+Ứng dụng hỗ trợ hai cách lấy thẻ: đăng nhập bằng **email + mật khẩu**, hoặc bằng **tài khoản Google**. Cả hai đều kết thúc ở cùng một chỗ — backend cấp JWT, frontend lưu lại và dùng cho các request tiếp theo.
 
 ---
 
