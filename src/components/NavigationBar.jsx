@@ -1,44 +1,19 @@
 import React from 'react';
 import { Navbar, Container, Nav, Button, Dropdown } from 'react-bootstrap';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 
 const NavigationBar = ({ isLoggedIn, setIsLoggedIn, userProfile, setUserProfile, darkMode, toggleTheme }) => {
   const navigate = useNavigate();
-  // Cấu hình Google Login
-  const login = useGoogleLogin({
-    onSuccess: async (codeResponse) => {
-      localStorage.setItem('googleToken', codeResponse.access_token);
-      setIsLoggedIn(true);
-      try {
-        const res = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${codeResponse.access_token}`, {
-          headers: {
-            Authorization: `Bearer ${codeResponse.access_token}`,
-            Accept: 'application/json'
-          }
-        });
-        const profile = {
-          ...res.data,
-          isAdmin: res.data.email === import.meta.env.VITE_ADMIN_EMAIL
-        };
-        setUserProfile(profile);
-        localStorage.setItem('userProfile', JSON.stringify(profile));
-      } catch (err) {
-        console.error('Failed to fetch user profile:', err);
-      }
-    },
-    onError: () => console.log('Login Failed'),
-  });
-
   // Hàm xử lý Đăng xuất
   const handleLogout = () => {
-    localStorage.removeItem('googleToken');
-    localStorage.removeItem('userProfile');
+    localStorage.removeItem('user');
     setIsLoggedIn(false);
     setUserProfile(null);
-    navigate('/');
+    navigate('/login');
   };
+
+  const isAdmin = !!(userProfile?.isAdmin || userProfile?.admin);
 
   return (
     <Navbar expand="lg" sticky="top" className="navbar-custom">
@@ -58,7 +33,7 @@ const NavigationBar = ({ isLoggedIn, setIsLoggedIn, userProfile, setUserProfile,
             <Nav.Link as={NavLink} to="/" end>
               Home
             </Nav.Link>
-            {isLoggedIn && userProfile?.isAdmin && (
+            {isLoggedIn && isAdmin && (
               <Nav.Link as={NavLink} to="/management">
                 Management
               </Nav.Link>
@@ -96,11 +71,13 @@ const NavigationBar = ({ isLoggedIn, setIsLoggedIn, userProfile, setUserProfile,
               )}
             </button>
 
-            {/* Google Sign In / User Profile */}
+            {/* User Profile */}
             {isLoggedIn && userProfile ? (
               <Dropdown align="end">
                 <Dropdown.Toggle variant="light" id="dropdown-profile" className="d-flex align-items-center gap-2 rounded-pill px-2 py-1 shadow-sm border-0" style={{ background: darkMode ? '#374151' : '#ffffff' }}>
-                  <img src={userProfile.picture || 'https://via.placeholder.com/150'} alt="avatar" className="rounded-circle" width="32" height="32" />
+                  <div className="avatar text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style={{ width: '32px', height: '32px', background: 'var(--bs-primary)' }}>
+                    {userProfile.name?.charAt(0).toUpperCase() || 'U'}
+                  </div>
                   <div className="d-none d-sm-flex flex-column align-items-start" style={{ lineHeight: '1.2' }}>
                     <span className="fw-semibold text-truncate" style={{ maxWidth: '100px', color: darkMode ? '#f9fafb' : '#374151', fontSize: '0.9rem' }}>{userProfile.name}</span>
                     <span style={{ fontSize: '0.7rem', color: userProfile.isAdmin ? '#ef4444' : '#10b981', fontWeight: 'bold' }}>
@@ -122,13 +99,7 @@ const NavigationBar = ({ isLoggedIn, setIsLoggedIn, userProfile, setUserProfile,
                 </Dropdown.Menu>
               </Dropdown>
             ) : (
-              <Button variant="light" className="google-login-btn px-3 py-1.5 d-flex align-items-center gap-2" onClick={() => login()}>
-                <svg width="16" height="16" viewBox="0 0 48 48">
-                  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-                  <path fill="#4285F4" d="M46.5 24c0-1.63-.15-3.2-.43-4.75H24v9h12.75c-.55 2.94-2.21 5.44-4.71 7.12l7.31 5.67C43.6 36.6 46.5 30.82 46.5 24z" />
-                  <path fill="#FBBC05" d="M10.54 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.98-6.19z" />
-                  <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.3-5.68c-2.03 1.36-4.63 2.18-8.59 2.18-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-                </svg>
+              <Button as={Link} to="/login" variant="light" className="google-login-btn px-3 py-1.5 d-flex align-items-center gap-2">
                 <span>Sign in</span>
               </Button>
             )}

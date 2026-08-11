@@ -29,10 +29,8 @@ const Home = () => {
   });
 
   useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchOrchids());
-    }
-  }, [status, dispatch]);
+    dispatch(fetchOrchids());
+  }, [dispatch]);
 
   // Load favorites from localStorage
   useEffect(() => {

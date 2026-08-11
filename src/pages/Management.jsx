@@ -26,13 +26,9 @@ const Management = ({ isLoggedIn }) => {
   const [activeTab, setActiveTab] = useState('orchids');
 
   useEffect(() => {
-    if (orchidStatus === 'idle') {
-      dispatch(fetchOrchids());
-    }
-    if (categoryStatus === 'idle') {
-      dispatch(fetchCategories());
-    }
-  }, [orchidStatus, categoryStatus, dispatch]);
+    dispatch(fetchOrchids());
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
   const handleShowEditOrchid = (orchid) => {
     setCurrentOrchid(orchid);
