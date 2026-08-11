@@ -1,31 +1,45 @@
 import axios from "axios";
 
-// Đảm bảo file .env của bạn có chứa: VITE_API_URL=https://[ID].mockapi.io/lab-fer
-const baseUrl = import.meta.env.VITE_API_URL;
-if (!baseUrl) {
-  throw new Error('Missing VITE_API_URL. Create a .env file at the project root with VITE_API_URL=https://<your-id>.mockapi.io/lab-fer');
-}
+const categoryUrl = 'http://localhost:8080/api/categories';
 
-// Thay thế endpoint lab-fer bằng categories
-const categoryUrl = baseUrl.replace('/lab-fer', '/categories');
+const axiosInstance = axios.create({
+    baseURL: categoryUrl
+});
+
+// Add a request interceptor to attach JWT token
+axiosInstance.interceptors.request.use(
+    (config) => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            const user = JSON.parse(storedUser);
+            if (user && user.token) {
+                config.headers['Authorization'] = 'Bearer ' + user.token;
+            }
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
 export const getAllCategories = async () => {
-    const response = await axios.get(categoryUrl);
+    const response = await axiosInstance.get('');
     const data = response.data;
     return Array.isArray(data) ? data : data?.data ?? [];
 };
 
 export const createCategory = async (categoryData) => {
-    const response = await axios.post(categoryUrl, categoryData);
+    const response = await axiosInstance.post('/', categoryData);
     return response.data;
 };
 
 export const updateCategory = async (id, categoryData) => {
-    const response = await axios.put(`${categoryUrl}/${id}`, categoryData);
+    const response = await axiosInstance.put(`/${id}`, categoryData);
     return response.data;
 };
 
 export const deleteCategory = async (id) => {
-    const response = await axios.delete(`${categoryUrl}/${id}`);
+    const response = await axiosInstance.delete(`/${id}`);
     return response.data;
 };
