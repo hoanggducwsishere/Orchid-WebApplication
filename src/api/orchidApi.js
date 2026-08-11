@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const baseUrl = 'http://localhost:8080/api/orchids';
+const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const baseUrl = `${apiBase.replace(/\/$/, '')}/orchids`;
 
 const axiosInstance = axios.create({
     baseURL: baseUrl

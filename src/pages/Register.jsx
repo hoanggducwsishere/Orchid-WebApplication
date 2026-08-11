@@ -16,7 +16,8 @@ const Register = () => {
     setError('');
     setSuccess('');
     try {
-      await axios.post('http://localhost:8080/api/auth/register', {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+      await axios.post(`${apiBase.replace(/\/$/, '')}/auth/register`, {
         name,
         email,
         password

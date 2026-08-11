@@ -15,6 +15,8 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import './styles/app.scss';
 
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '123456789-dummyclientid.apps.googleusercontent.com';
+
 ReactDOM.createRoot(document.getElementById('root')).render(
 
   <React.StrictMode>
@@ -23,9 +25,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
       <BrowserRouter>
 
-        {/* Thay YOUR_CLIENT_ID bằng Client ID Google thực tế của bạn */}
-
-        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <GoogleOAuthProvider clientId={googleClientId}>
 
           <App />
 

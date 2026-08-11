@@ -39,7 +39,8 @@ const Login = ({ setIsLoggedIn, setUserProfile }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+      const response = await axios.post(`${apiBase.replace(/\/$/, '')}/auth/login`, {
         email,
         password
       });
