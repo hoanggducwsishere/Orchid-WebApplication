@@ -10,10 +10,21 @@ const Footer = () => {
           <Col lg={4} md={6}>
             <div className="d-flex align-items-center gap-2 mb-3">
               {/* Logo SVG */}
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-premium-color">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="footerOrchidGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#8b5cf6" />
+                    <stop offset="50%" stopColor="#ec4899" />
+                    <stop offset="100%" stopColor="#f43f5e" />
+                  </linearGradient>
+                </defs>
+                <path d="M16 3C16 3 9.5 10 9.5 16C9.5 19.58 12.42 22.5 16 22.5C19.58 22.5 22.5 19.58 22.5 16C22.5 10 16 3 16 3Z" fill="url(#footerOrchidGrad)" />
+                <path d="M16 7.5C16 7.5 12 12.5 12 16.5C12 18.7 13.8 20.5 16 20.5C18.2 20.5 20 18.7 20 16.5C20 12.5 16 7.5 16 7.5Z" fill="#ffffff" opacity="0.4" />
+                <path d="M8 14C5 16 4.5 20 7 23C9.5 26 14 24.5 16 22C13 22 10 19 8 14Z" fill="url(#footerOrchidGrad)" opacity="0.9" />
+                <path d="M24 14C27 16 27.5 20 25 23C22.5 26 17 24.5 16 22C19 22 22 19 24 14Z" fill="url(#footerOrchidGrad)" opacity="0.9" />
+                <circle cx="16" cy="17.5" r="2" fill="#fef08a" />
               </svg>
-              <h4 className="fw-bolder mb-0 text-premium-color" style={{ letterSpacing: '-0.5px' }}>Orchid App</h4>
+              <h4 className="fw-bolder mb-0 text-premium-color" style={{ letterSpacing: '-0.5px' }}>Orchid Haven</h4>
             </div>
             <p className="text-muted small mb-4 pe-lg-4 lh-lg">
               Discover the world's most exquisite and rare orchids. Our digital archive brings botanical beauty to your fingertips with detailed records, stunning visuals, and an interactive community.

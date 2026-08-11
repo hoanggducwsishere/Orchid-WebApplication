@@ -19,11 +19,22 @@ const NavigationBar = ({ isLoggedIn, setIsLoggedIn, userProfile, setUserProfile,
     <Navbar expand="lg" sticky="top" className="navbar-custom">
       <Container className="d-flex align-items-center">
         {/* Sleek brand logo + name */}
-        <Navbar.Brand as={Link} to="/" className="gap-2">
-          <svg width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" className="brand-logo-icon">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21V9.75M12 9.75a3 3 0 1 1 6 0M12 9.75a3 3 0 1 0-6 0M6 9.75a6 6 0 0 1 12 0" />
+        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center gap-2">
+          <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="brand-logo-icon">
+            <defs>
+              <linearGradient id="navOrchidGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#8b5cf6" />
+                <stop offset="50%" stopColor="#ec4899" />
+                <stop offset="100%" stopColor="#f43f5e" />
+              </linearGradient>
+            </defs>
+            <path d="M16 3C16 3 9.5 10 9.5 16C9.5 19.58 12.42 22.5 16 22.5C19.58 22.5 22.5 19.58 22.5 16C22.5 10 16 3 16 3Z" fill="url(#navOrchidGrad)" />
+            <path d="M16 7.5C16 7.5 12 12.5 12 16.5C12 18.7 13.8 20.5 16 20.5C18.2 20.5 20 18.7 20 16.5C20 12.5 16 7.5 16 7.5Z" fill="#ffffff" opacity="0.4" />
+            <path d="M8 14C5 16 4.5 20 7 23C9.5 26 14 24.5 16 22C13 22 10 19 8 14Z" fill="url(#navOrchidGrad)" opacity="0.9" />
+            <path d="M24 14C27 16 27.5 20 25 23C22.5 26 17 24.5 16 22C19 22 22 19 24 14Z" fill="url(#navOrchidGrad)" opacity="0.9" />
+            <circle cx="16" cy="17.5" r="2" fill="#fef08a" />
           </svg>
-          <span>Orchid App</span>
+          <span className="fw-bolder" style={{ letterSpacing: '-0.02em', background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Orchid Haven</span>
         </Navbar.Brand>
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />

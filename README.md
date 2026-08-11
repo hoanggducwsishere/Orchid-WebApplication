@@ -1,4 +1,4 @@
-# 🌺 FER202 - Orchid Web Application (Fullstack Lab Project)
+# 🌺 Orchid Haven - Web Application (Fullstack Lab Project)
 
 ![React](https://img.shields.io/badge/Frontend-React_19-blue?style=for-the-badge&logo=react)
 ![Vite](https://img.shields.io/badge/Build_Tool-Vite_8-646CFF?style=for-the-badge&logo=vite)
