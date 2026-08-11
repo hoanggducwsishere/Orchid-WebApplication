@@ -15,7 +15,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import './styles/app.scss';
 
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '123456789-dummyclientid.apps.googleusercontent.com';
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '658378569553-vhfuo85a3clthm6gk8ef4vga5qb5dgr2.apps.googleusercontent.com';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
 
