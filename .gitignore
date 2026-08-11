@@ -11,9 +11,14 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# Kết quả build của Maven — sinh lại được từ source, không commit.
+backend/target/
 .env
 .env.*
 .env.local
+# File mẫu không chứa giá trị thật, cần commit để người khác biết phải khai báo gì.
+!.env.example
 
 # Editor directories and files
 .vscode/*
