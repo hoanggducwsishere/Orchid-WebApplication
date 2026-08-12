@@ -1,8 +1,17 @@
-import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 
-const ConfirmModal = ({ show, onHide, onConfirm, title, message, confirmLabel = 'Delete' }) => (
-    <Modal show={show} onHide={onHide} centered>
+// Prop names follow OrchidModal/CategoryModal (handleClose), so every modal in the
+// project is wired the same way.
+const ConfirmModal = ({
+    show,
+    handleClose,
+    handleConfirm,
+    title,
+    message,
+    confirmLabel = 'Delete',
+    isProcessing = false,
+}) => (
+    <Modal show={show} onHide={handleClose} centered>
         <Modal.Body className="text-center p-4">
             {/* p-3 bao quanh svg 28px -> tu thanh hinh tron, khong can set width/height */}
             <div className="d-inline-flex p-3 mb-3 rounded-circle bg-danger-subtle text-danger">
@@ -16,11 +25,11 @@ const ConfirmModal = ({ show, onHide, onConfirm, title, message, confirmLabel = 
             <p className="text-body-secondary small mb-4">{message}</p>
 
             <div className="d-flex gap-2">
-                <Button variant="outline-secondary" className="flex-fill py-2 fw-semibold" onClick={onHide}>
+                <Button variant="outline-secondary" className="flex-fill py-2 fw-semibold" onClick={handleClose} disabled={isProcessing}>
                     Cancel
                 </Button>
-                <Button variant="danger" className="flex-fill py-2 fw-semibold" onClick={onConfirm}>
-                    {confirmLabel}
+                <Button variant="danger" className="flex-fill py-2 fw-semibold" onClick={handleConfirm} disabled={isProcessing}>
+                    {isProcessing ? 'Deleting...' : confirmLabel}
                 </Button>
             </div>
         </Modal.Body>
