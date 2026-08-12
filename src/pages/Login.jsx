@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { Container, Form, Button, Alert, Card } from 'react-bootstrap';
+import { Container, Form, Button, Alert, Card, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import GoogleLoginButton from '../components/GoogleLoginButton';
+import PageLoader from '../components/PageLoader';
 import { isGoogleAuthEnabled } from '../config/googleAuth';
 import { API_BASE_URL, getRequestErrorMessage } from '../config/api';
 
@@ -10,6 +11,8 @@ const Login = ({ setIsLoggedIn, setUserProfile }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('Signing in...');
   const navigate = useNavigate();
 
   // Set by the API client when it clears an expired session, so the redirect does
@@ -26,6 +29,10 @@ const Login = ({ setIsLoggedIn, setUserProfile }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
+    setIsLoading(true);
+    setLoadingMessage('Signing in to your account...');
+
     try {
       const response = await axios.post(`${API_BASE_URL}/auth/login`, {
         email,
@@ -44,12 +51,15 @@ const Login = ({ setIsLoggedIn, setUserProfile }) => {
       }
     } catch (err) {
       setError(getRequestErrorMessage(err, 'Invalid email or password'));
+      setIsLoading(false);
     }
   };
 
   return (
     <Container className="d-flex align-items-center justify-content-center py-4" style={{ minHeight: 'calc(100vh - 80px)' }}>
-      <Card className="p-4 shadow-lg border-0 rounded-4" style={{ width: '100%', maxWidth: '400px' }}>
+      <Card className="p-4 shadow-lg border-0 rounded-4 position-relative overflow-hidden" style={{ width: '100%', maxWidth: '400px' }}>
+        {isLoading && <PageLoader overlay message={loadingMessage} />}
+
         <div className="text-center mb-4">
           <svg width="40" height="40" fill="none" stroke="var(--bs-primary)" strokeWidth="2.5" viewBox="0 0 24 24" className="mb-2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21V9.75M12 9.75a3 3 0 1 1 6 0M12 9.75a3 3 0 1 0-6 0M6 9.75a6 6 0 0 1 12 0" />
@@ -75,6 +85,7 @@ const Login = ({ setIsLoggedIn, setUserProfile }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isLoading}
               className="py-2"
             />
           </Form.Group>
@@ -86,11 +97,24 @@ const Login = ({ setIsLoggedIn, setUserProfile }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={isLoading}
               className="py-2"
             />
           </Form.Group>
-          <Button variant="premium-action" type="submit" className="w-100 py-2 rounded-pill fw-semibold mb-3">
-            Sign In
+          <Button 
+            variant="premium-action" 
+            type="submit" 
+            disabled={isLoading}
+            className="w-100 py-2 rounded-pill fw-semibold mb-3 d-flex align-items-center justify-content-center gap-2"
+          >
+            {isLoading ? (
+              <>
+                <Spinner animation="border" size="sm" role="status" aria-hidden="true" />
+                <span>Signing In...</span>
+              </>
+            ) : (
+              <span>Sign In</span>
+            )}
           </Button>
         </Form>
 
@@ -102,7 +126,22 @@ const Login = ({ setIsLoggedIn, setUserProfile }) => {
               <hr className="flex-grow-1" />
             </div>
 
-            <GoogleLoginButton onSuccess={handleGoogleSuccess} onError={setError} />
+            <GoogleLoginButton 
+              onSuccess={handleGoogleSuccess} 
+              onError={(msg) => {
+                setError(msg);
+                setIsLoading(false);
+              }}
+              loading={isLoading}
+              onLoadingStart={(msg) => {
+                setError('');
+                setIsLoading(true);
+                setLoadingMessage(msg || 'Verifying Google account...');
+              }}
+              onLoadingEnd={() => {
+                setIsLoading(false);
+              }}
+            />
           </>
         )}
 
@@ -116,3 +155,4 @@ const Login = ({ setIsLoggedIn, setUserProfile }) => {
 };
 
 export default Login;
+

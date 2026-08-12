@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { Container } from 'react-bootstrap';
 import NavigationBar from './components/NavigationBar';
 import ScrollToTop from './components/ScrollToTop';
+import PageLoader from './components/PageLoader';
 import useTheme from './assets/hooks/useTheme';
 import AppRoutes from './routes/AppRoutes';
 import Footer from './components/Footer';
 
 function App() {
+  const [isInitializing, setIsInitializing] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('user'));
   const [userProfile, setUserProfile] = useState(() => {
     const storedUser = localStorage.getItem('user');
@@ -30,7 +32,16 @@ function App() {
         console.error(e);
       }
     }
+    setIsInitializing(false);
   }, []);
+
+  if (isInitializing) {
+    return (
+      <div className={`app-shell ${darkMode ? 'theme-dark' : 'theme-light'}`}>
+        <PageLoader fullPage message="Initializing Orchid Haven..." />
+      </div>
+    );
+  }
 
   return (
     <div className={`app-shell ${darkMode ? 'theme-dark' : 'theme-light'}`}>
