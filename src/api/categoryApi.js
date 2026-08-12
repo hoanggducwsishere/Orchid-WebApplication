@@ -1,7 +1,7 @@
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 
-const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
-const categoryUrl = `${apiBase.replace(/\/$/, '')}/categories`;
+const categoryUrl = `${API_BASE_URL}/categories`;
 
 const axiosInstance = axios.create({
     baseURL: categoryUrl
