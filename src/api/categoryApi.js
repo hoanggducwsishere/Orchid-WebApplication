@@ -1,28 +1,6 @@
-import axios from "axios";
-import { API_BASE_URL } from "../config/api";
+import { createApiClient } from "../config/api";
 
-const categoryUrl = `${API_BASE_URL}/categories`;
-
-const axiosInstance = axios.create({
-    baseURL: categoryUrl
-});
-
-// Add a request interceptor to attach JWT token
-axiosInstance.interceptors.request.use(
-    (config) => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            const user = JSON.parse(storedUser);
-            if (user && user.token) {
-                config.headers['Authorization'] = 'Bearer ' + user.token;
-            }
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
+const axiosInstance = createApiClient("/categories");
 
 export const getAllCategories = async () => {
     const response = await axiosInstance.get('');
@@ -30,8 +8,10 @@ export const getAllCategories = async () => {
     return Array.isArray(data) ? data : data?.data ?? [];
 };
 
+// '' rather than '/' — see the note in orchidApi.js: a trailing slash turns the
+// create request into a 401 under Spring Boot 3.
 export const createCategory = async (categoryData) => {
-    const response = await axiosInstance.post('/', categoryData);
+    const response = await axiosInstance.post('', categoryData);
     return response.data;
 };
 

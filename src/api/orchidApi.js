@@ -1,28 +1,6 @@
-import axios from "axios";
-import { API_BASE_URL } from "../config/api";
+import { createApiClient } from "../config/api";
 
-const baseUrl = `${API_BASE_URL}/orchids`;
-
-const axiosInstance = axios.create({
-    baseURL: baseUrl
-});
-
-// Add a request interceptor to attach JWT token
-axiosInstance.interceptors.request.use(
-    (config) => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            const user = JSON.parse(storedUser);
-            if (user && user.token) {
-                config.headers['Authorization'] = 'Bearer ' + user.token;
-            }
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
+const axiosInstance = createApiClient("/orchids");
 
 export const getAllOrchids = async () => {
     const response = await axiosInstance.get('');
@@ -30,8 +8,11 @@ export const getAllOrchids = async () => {
     return Array.isArray(data) ? data : data?.data ?? [];
 };
 
+// Must be '' and not '/': axios would build ".../orchids/", and Spring Boot 3
+// stopped matching trailing slashes by default, so the request falls through to
+// the error dispatch and comes back as 401 instead of creating anything.
 export const createOrchid = async (orchidData) => {
-    const response = await axiosInstance.post('/', orchidData);
+    const response = await axiosInstance.post('', orchidData);
     return response.data;
 };
 
