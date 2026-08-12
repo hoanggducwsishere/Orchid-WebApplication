@@ -10,12 +10,15 @@ const LOCAL_FALLBACK = 'http://localhost:8080/api';
 
 export const API_BASE_URL = (configured || LOCAL_FALLBACK).replace(/\/$/, '');
 
-// A production build pointing at localhost can never work: the visitor's browser
-// would call their own machine, and a page served over HTTPS blocks plain HTTP
-// requests as mixed content. Detect it instead of failing with a confusing
-// "wrong password" message on the login screen.
-export const isApiMisconfigured =
-  import.meta.env.PROD && /\/\/(localhost|127\.0\.0\.1)/.test(API_BASE_URL);
+// A production build that fell back to LOCAL_FALLBACK can never work for real
+// visitors: their browser would call their own machine, and a page served over
+// HTTPS blocks plain HTTP requests as mixed content. Detect it instead of failing
+// with a confusing "wrong password" message on the login screen.
+//
+// The test is "was the variable supplied", not "does the URL say localhost":
+// building a production bundle that deliberately points at a local backend is a
+// normal way to preview the real build, and it must not raise a false alarm.
+export const isApiMisconfigured = import.meta.env.PROD && !configured;
 
 if (isApiMisconfigured) {
   console.error(
