@@ -34,6 +34,16 @@ const OrchidModal = ({ show, handleClose, handleSubmit, initialData }) => {
     const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
     const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
+    // Without these the URL below becomes .../v1_1/undefined/image/upload, and
+    // Cloudinary answers "cloud_name is disabled" — which reads like a suspended
+    // account instead of a build that was missing its environment variables.
+    if (!cloudName || !uploadPreset) {
+      setUploadError('Image upload is not configured. The Cloudinary settings are missing from this build.');
+      setIsUploading(false);
+      e.target.value = null;
+      return;
+    }
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', uploadPreset);
@@ -109,15 +119,21 @@ const OrchidModal = ({ show, handleClose, handleSubmit, initialData }) => {
         enableReinitialize
         initialValues={getInitialValues()}
         validationSchema={OrchidSchema}
-        onSubmit={(values) => {
+        onSubmit={async (values, { setSubmitting }) => {
           const submissionValues = {
             ...values,
             color: Array.isArray(values.color) ? values.color.join('/') : values.color
           };
-          handleSubmit(submissionValues);
+          try {
+            await handleSubmit(submissionValues);
+          } finally {
+            // The parent keeps the modal open when saving fails, so the button has
+            // to become clickable again for the retry.
+            setSubmitting(false);
+          }
         }}
       >
-        {({ values, errors, touched, handleChange, handleBlur, handleSubmit, setFieldValue }) => (
+        {({ values, errors, touched, handleChange, handleBlur, handleSubmit, setFieldValue, isSubmitting }) => (
           <Form onSubmit={handleSubmit}>
             <Modal.Body>
               <Row className="g-3">
@@ -371,8 +387,12 @@ const OrchidModal = ({ show, handleClose, handleSubmit, initialData }) => {
               <Button variant="secondary" className="px-4 py-2 rounded-3" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button variant="premium-action" className="px-4 py-2" type="submit" disabled={isUploading}>
-                {isUploading ? 'Uploading...' : (initialData ? 'Save Changes' : 'Create Orchid')}
+              <Button variant="premium-action" className="px-4 py-2" type="submit" disabled={isUploading || isSubmitting}>
+                {isSubmitting
+                  ? 'Saving...'
+                  : isUploading
+                    ? 'Uploading...'
+                    : (initialData ? 'Save Changes' : 'Create Orchid')}
               </Button>
             </Modal.Footer>
           </Form>

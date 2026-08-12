@@ -32,11 +32,17 @@ const CategoryModal = ({ show, handleClose, handleSubmit, initialData }) => {
         enableReinitialize
         initialValues={getInitialValues()}
         validationSchema={CategorySchema}
-        onSubmit={(values) => {
-          handleSubmit(values);
+        onSubmit={async (values, { setSubmitting }) => {
+          try {
+            await handleSubmit(values);
+          } finally {
+            // The parent keeps the modal open when saving fails, so the button has
+            // to become clickable again for the retry.
+            setSubmitting(false);
+          }
         }}
       >
-        {({ values, errors, touched, handleChange, handleBlur, handleSubmit: formikSubmit }) => (
+        {({ values, errors, touched, handleChange, handleBlur, handleSubmit: formikSubmit, isSubmitting }) => (
           <Form onSubmit={formikSubmit}>
             <Modal.Body>
               <Form.Group className="mb-3">
@@ -70,11 +76,11 @@ const CategoryModal = ({ show, handleClose, handleSubmit, initialData }) => {
             </Modal.Body>
             
             <Modal.Footer>
-              <Button variant="secondary" onClick={handleClose}>
+              <Button variant="secondary" onClick={handleClose} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button variant="premium-action" type="submit">
-                {initialData ? 'Save Changes' : 'Create Category'}
+              <Button variant="premium-action" type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : (initialData ? 'Save Changes' : 'Create Category')}
               </Button>
             </Modal.Footer>
           </Form>

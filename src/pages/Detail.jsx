@@ -5,6 +5,7 @@ import { Container, Row, Col, Badge, Card, Form, Button, Alert } from 'react-boo
 import { fetchOrchids, editOrchid } from '../redux/orchidSlice';
 import { resolveOrchidImage } from '../utils/imageHelper';
 import StarRating from '../components/StarRating';
+import ConfirmModal from '../components/ConfirmModal';
 
 const Detail = ({ isLoggedIn, userProfile }) => {
   const dispatch = useDispatch();
@@ -21,6 +22,8 @@ const Detail = ({ isLoggedIn, userProfile }) => {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState(null);
   const [isEditingFeedback, setIsEditingFeedback] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeletingFeedback, setIsDeletingFeedback] = useState(false);
 
   // Fetch orchids if not loaded (e.g. on direct page refresh)
   useEffect(() => {
@@ -110,9 +113,7 @@ const Detail = ({ isLoggedIn, userProfile }) => {
     setFeedbackMsg(null);
   };
 
-  const handleDeleteFeedback = () => {
-    if (!window.confirm('Are you sure you want to delete your review?')) return;
-    
+  const doDeleteFeedback = async () => {
     const updatedFeedbackList = orchid.feedback.filter(f => f.author !== userProfile.email);
     const totalRating = updatedFeedbackList.reduce((sum, f) => sum + f.rating, 0);
     const newAvgRating = updatedFeedbackList.length > 0 ? (totalRating / updatedFeedbackList.length).toFixed(1) : 0;
@@ -123,17 +124,19 @@ const Detail = ({ isLoggedIn, userProfile }) => {
       rating: parseFloat(newAvgRating)
     };
 
-    dispatch(editOrchid({ id: orchid.id, data: updatedOrchid }))
-      .unwrap()
-      .then(() => {
-        setFeedbackMsg({ type: 'success', text: 'Review deleted successfully.' });
-        setIsEditingFeedback(false);
-        setComment('');
-        setRating(5);
-      })
-      .catch((err) => {
-        setFeedbackMsg({ type: 'danger', text: 'Failed to delete review.' });
-      });
+    setIsDeletingFeedback(true);
+    try {
+      await dispatch(editOrchid({ id: orchid.id, data: updatedOrchid })).unwrap();
+      setFeedbackMsg({ type: 'success', text: 'Review deleted successfully.' });
+      setIsEditingFeedback(false);
+      setComment('');
+      setRating(5);
+      setShowDeleteConfirm(false);
+    } catch {
+      setFeedbackMsg({ type: 'danger', text: 'Failed to delete review.' });
+    } finally {
+      setIsDeletingFeedback(false);
+    }
   };
 
   const handleFeedbackSubmit = (e) => {
@@ -472,7 +475,7 @@ const Detail = ({ isLoggedIn, userProfile }) => {
                                <span 
                                  className="fw-semibold" 
                                  style={{cursor: 'pointer', fontSize: '0.8rem', color: '#ef4444', letterSpacing: '0.01em'}} 
-                                 onClick={handleDeleteFeedback}
+                                 onClick={() => setShowDeleteConfirm(true)}
                                >
                                  Delete
                                </span>
@@ -500,6 +503,15 @@ const Detail = ({ isLoggedIn, userProfile }) => {
           <div className="lightbox-title">{orchid.name}</div>
         </div>
       </div>
+
+      <ConfirmModal
+        show={showDeleteConfirm}
+        handleClose={() => setShowDeleteConfirm(false)}
+        handleConfirm={doDeleteFeedback}
+        title="Delete your review?"
+        message="Your rating and comment will be removed, and this orchid's average score will be recalculated. This cannot be undone."
+        isProcessing={isDeletingFeedback}
+      />
     </Container>
   );
 };
