@@ -4,6 +4,7 @@ import { Container, Form, Button, Alert, Card } from 'react-bootstrap';
 import axios from 'axios';
 import GoogleLoginButton from '../components/GoogleLoginButton';
 import { isGoogleAuthEnabled } from '../config/googleAuth';
+import { API_BASE_URL, getRequestErrorMessage } from '../config/api';
 
 const Login = ({ setIsLoggedIn, setUserProfile }) => {
   const [email, setEmail] = useState('');
@@ -21,8 +22,7 @@ const Login = ({ setIsLoggedIn, setUserProfile }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
-      const response = await axios.post(`${apiBase.replace(/\/$/, '')}/auth/login`, {
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
         email,
         password
       });
@@ -38,7 +38,7 @@ const Login = ({ setIsLoggedIn, setUserProfile }) => {
         navigate('/');
       }
     } catch (err) {
-      setError('Invalid email or password');
+      setError(getRequestErrorMessage(err, 'Invalid email or password'));
     }
   };
 

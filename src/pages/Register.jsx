@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Container, Form, Button, Alert, Card } from 'react-bootstrap';
 import axios from 'axios';
+import { API_BASE_URL, getRequestErrorMessage } from '../config/api';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -16,8 +17,7 @@ const Register = () => {
     setError('');
     setSuccess('');
     try {
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
-      await axios.post(`${apiBase.replace(/\/$/, '')}/auth/register`, {
+      await axios.post(`${API_BASE_URL}/auth/register`, {
         name,
         email,
         password
@@ -27,7 +27,7 @@ const Register = () => {
         navigate('/login');
       }, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(getRequestErrorMessage(err, 'Registration failed'));
     }
   };
 

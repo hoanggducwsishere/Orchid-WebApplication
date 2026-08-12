@@ -1,6 +1,7 @@
 import { Button } from 'react-bootstrap';
 import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
+import { API_BASE_URL, getRequestErrorMessage } from '../config/api';
 
 // Kept in its own component so the useGoogleLogin hook only ever runs when a
 // Google client id is configured. See src/config/googleAuth.js.
@@ -11,8 +12,7 @@ const GoogleLoginButton = ({ onSuccess, onError }) => {
         // Exchange the Google access token for this app's own JWT. Storing the
         // Google token instead would fail every API call: it is an opaque string,
         // not a JWT, so the backend cannot parse it.
-        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
-        const res = await axios.post(`${apiBase.replace(/\/$/, '')}/auth/google`, {
+        const res = await axios.post(`${API_BASE_URL}/auth/google`, {
           accessToken: codeResponse.access_token
         });
 
@@ -22,7 +22,7 @@ const GoogleLoginButton = ({ onSuccess, onError }) => {
         });
       } catch (err) {
         console.error('Google login failed:', err);
-        onError(err.response?.data?.message || 'Failed to login with Google.');
+        onError(getRequestErrorMessage(err, 'Failed to login with Google.'));
       }
     },
     onError: () => onError('Google Sign In failed.'),
