@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Container, Form, Button, Alert, Card } from 'react-bootstrap';
 import axios from 'axios';
 import GoogleLoginButton from '../components/GoogleLoginButton';
@@ -11,6 +11,11 @@ const Login = ({ setIsLoggedIn, setUserProfile }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  // Set by the API client when it clears an expired session, so the redirect does
+  // not look like the app randomly logged the user out.
+  const [searchParams] = useSearchParams();
+  const sessionExpired = searchParams.get('expired') === '1';
 
   const handleGoogleSuccess = (profile) => {
     localStorage.setItem('user', JSON.stringify(profile));
@@ -53,6 +58,12 @@ const Login = ({ setIsLoggedIn, setUserProfile }) => {
           <p className="text-muted small">Please login to your account</p>
         </div>
         
+        {sessionExpired && !error && (
+          <Alert variant="warning" className="py-2 small">
+            Your session has expired. Please sign in again.
+          </Alert>
+        )}
+
         {error && <Alert variant="danger">{error}</Alert>}
         
         <Form onSubmit={handleLogin}>
