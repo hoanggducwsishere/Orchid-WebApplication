@@ -1,7 +1,7 @@
 import React from 'react';
-import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
+import { Modal, Button, Form, Row, Col, Alert } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
-import { Formik } from 'formik';
+import { Formik, useFormikContext } from 'formik';
 import * as Yup from 'yup';
 
 const OrchidSchema = Yup.object().shape({
@@ -14,6 +14,25 @@ const OrchidSchema = Yup.object().shape({
   videoUrl: Yup.string().required('Video URL is required'),
   description: Yup.string().required('Description is required')
 });
+
+// Formik refuses to submit when validation fails, but it does that silently. The
+// form is taller than the modal viewport, so the red text can sit off-screen while
+// the user stares at a Create button that looks broken. Bring the first offender
+// into view instead.
+const ScrollToFirstError = () => {
+  const { submitCount, isValid } = useFormikContext();
+
+  React.useEffect(() => {
+    if (submitCount === 0 || isValid) return;
+
+    // .field-error covers the image and colour messages, which are plain divs
+    // rather than Bootstrap's .invalid-feedback.
+    const firstError = document.querySelector('.modal.show .is-invalid, .modal.show .field-error');
+    firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [submitCount, isValid]);
+
+  return null;
+};
 
 const OrchidModal = ({ show, handleClose, handleSubmit, initialData }) => {
   const categoriesState = useSelector(state => state.categories?.data) || [];
@@ -133,9 +152,20 @@ const OrchidModal = ({ show, handleClose, handleSubmit, initialData }) => {
           }
         }}
       >
-        {({ values, errors, touched, handleChange, handleBlur, handleSubmit, setFieldValue, isSubmitting }) => (
+        {({ values, errors, touched, handleChange, handleBlur, handleSubmit, setFieldValue, isSubmitting, submitCount }) => (
           <Form onSubmit={handleSubmit}>
+            <ScrollToFirstError />
             <Modal.Body>
+              {submitCount > 0 && Object.keys(errors).length > 0 && (
+                <Alert variant="danger" className="py-2 mb-3 d-flex align-items-center gap-2">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="flex-shrink-0">
+                    <path strokeLinecap="round" strokeLinejoin="round"
+                      d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.108-12.32c.866-1.5 3.032-1.5 3.898 0l7.108 12.32zM12 15.75h.007v.008H12v-.008z" />
+                  </svg>
+                  <span>Please fill in the highlighted fields before saving.</span>
+                </Alert>
+              )}
+
               <Row className="g-3">
                 {/* Row 1: Name & Image */}
                 <Col md={6}>
@@ -189,7 +219,7 @@ const OrchidModal = ({ show, handleClose, handleSubmit, initialData }) => {
                         />
                         {uploadError && <div className="text-danger mt-1 small">{uploadError}</div>}
                         {touched.img && errors.img && (
-                          <div className="text-danger mt-1" style={{ fontSize: '0.875em' }}>{errors.img}</div>
+                          <div className="text-danger mt-1 field-error" style={{ fontSize: '0.875em' }}>{errors.img}</div>
                         )}
                       </div>
                     ) : (
@@ -356,7 +386,7 @@ const OrchidModal = ({ show, handleClose, handleSubmit, initialData }) => {
                       )}
                     </div>
                     {touched.color && errors.color && (
-                      <div className="text-danger small mt-1 text-start" style={{ fontSize: '0.82rem' }}>
+                      <div className="text-danger small mt-1 text-start field-error" style={{ fontSize: '0.82rem' }}>
                         {Array.isArray(errors.color) ? errors.color[0] : errors.color}
                       </div>
                     )}
